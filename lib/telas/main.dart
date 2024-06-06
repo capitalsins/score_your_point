@@ -4,7 +4,7 @@ import 'package:score_your_point/telas/autenticacao_tela.dart';
 import 'package:score_your_point/telas/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:score_your_point/telas/inicio_tela.dart';
-import 'firebase_options.dart';
+import '../firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
