@@ -1,15 +1,36 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:score_your_point/_comum/minhas_cores.dart';
 import 'package:score_your_point/componentes/adicionar_editar_detalhes_modal.dart';
 import 'package:score_your_point/modelos/evento_modelo.dart';
 import 'package:score_your_point/modelos/detalhes_modelo.dart';
 import 'package:score_your_point/servicos/detalhes_servico.dart';
 
-class EventoTela extends StatelessWidget {
+class EventoTela extends StatefulWidget {
   final EventoModelo eventoModelo;
   EventoTela({super.key, required this.eventoModelo});
 
+  @override
+  State<EventoTela> createState() => _EventoTelaState();
+}
+
+class _EventoTelaState extends State<EventoTela> {
   final DetalhesServico _detalhesServico = DetalhesServico();
+
+  final imagePicker = ImagePicker();
+
+  File? imageFile;
+
+  pick(ImageSource source) async {
+    final pickedFile = await imagePicker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +40,14 @@ class EventoTela extends StatelessWidget {
         title: Column(
           children: [
             Text(
-              eventoModelo.nome,
+              widget.eventoModelo.nome,
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 22),
             ),
             Text(
-              eventoModelo.local,
+              widget.eventoModelo.local,
               style: const TextStyle(fontSize: 15, color: Colors.white),
             ),
           ],
@@ -46,7 +67,7 @@ class EventoTela extends StatelessWidget {
         onPressed: () {
           mostrarAdicionarEditarDetalhesDialog(
             context,
-            idEvento: eventoModelo.id,
+            idEvento: widget.eventoModelo.id,
           );
         },
         child: const Icon(Icons.add),
@@ -66,11 +87,15 @@ class EventoTela extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      pick(ImageSource.gallery);
+                    },
                     child: const Text("Enviar foto"),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      pick(ImageSource.camera);
+                    },
                     child: const Text("Tirar foto"),
                   ),
                 ],
@@ -89,7 +114,7 @@ class EventoTela extends StatelessWidget {
             const SizedBox(
               height: 8,
             ),
-            Text(eventoModelo.descricao),
+            Text(widget.eventoModelo.descricao),
             const Padding(
               padding: EdgeInsets.all(8.0),
               child: Divider(
@@ -107,8 +132,8 @@ class EventoTela extends StatelessWidget {
               height: 8,
             ),
             StreamBuilder(
-              stream:
-                  _detalhesServico.conectarStream(idEvento: eventoModelo.id),
+              stream: _detalhesServico.conectarStream(
+                  idEvento: widget.eventoModelo.id),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -140,7 +165,7 @@ class EventoTela extends StatelessWidget {
                                   onPressed: () {
                                     mostrarAdicionarEditarDetalhesDialog(
                                         context,
-                                        idEvento: eventoModelo.id,
+                                        idEvento: widget.eventoModelo.id,
                                         detalhesModelo: detalhesAgora);
                                   },
                                   icon: const Icon(Icons.edit),
@@ -152,7 +177,7 @@ class EventoTela extends StatelessWidget {
                                   ),
                                   onPressed: () {
                                     _detalhesServico.removerDetalhes(
-                                      eventoId: eventoModelo.id,
+                                      eventoId: widget.eventoModelo.id,
                                       detalhesId: detalhesAgora.id,
                                     );
                                   },
